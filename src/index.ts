@@ -6,6 +6,8 @@ interface ITask {
     date: Date;
     dateOfEditing : Date;
     taskStatus: boolean;
+    editTask(editedTask: ITask): void;
+    markTaskAsDone(): void;
 }
 
 
@@ -36,12 +38,12 @@ class TaskList {
         return this.tasks.filter(task => task.taskStatus === false);
     };
 
-    editTask(taskID: number, titleValue: string, textValue: string) {
-        let task: Task | undefined = this.tasks.find(task => task.id === taskID);
+    editTask(taskID: number, editedTask: ITask) {
+        let task: Task | ConfirmedTask | undefined = this.tasks.find(task => task.id === taskID);
         if (task === undefined) {
             throw new Error('Incorrect id of task')
         };
-        task.editTask(titleValue, textValue);
+        task.editTask(editedTask);
     };
 
     markTaskAsDone(taskID: number) {
@@ -66,13 +68,12 @@ class Task implements ITask{
         this.id = Math.random();
         this.title = title;
         this.text = text;
-        this.date = new Date;
+        this.date = new Date();
     };
 
-    editTask(titleValue: string, textValue: string) {
-        this.title = titleValue;
-        this.text = textValue;
-        this.dateOfEditing = new Date;
+    editTask(editedTask: ITask) {
+        Object.assign(this, editedTask);
+        this.dateOfEditing = new Date();
     };
 
     markTaskAsDone() {
@@ -81,7 +82,7 @@ class Task implements ITask{
  
 };
 
-class ConfirmedTask implements ITask{
+class ConfirmedTask implements ITask {
     private confirmed: boolean = false
     id: number;
     title: string;
@@ -94,16 +95,21 @@ class ConfirmedTask implements ITask{
         this.id = Math.random();
         this.title = title;
         this.text = text;
-        this.date = new Date;
+        this.date = new Date();
     };
 
-    editTask(titleValue: string, textValue: string) {
-        if (this.confirmed) return;
 
-        this.title = titleValue;
-        this.text = textValue;
-        this.dateOfEditing = new Date;
-    };
+
+
+        editTask(editedTask: ITask) {
+
+            if (this.confirmed) return;
+
+            Object.assign(this, editedTask);
+
+            this.dateOfEditing = new Date();
+
+        };
 
     markTaskAsDone() {
         this.taskStatus === undefined ? this.taskStatus = true : this.taskStatus = !this.taskStatus;
